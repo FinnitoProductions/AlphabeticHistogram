@@ -14,9 +14,18 @@
     (bind ?sliced (slice$ (lowcase ?n)))
     (bind ?histogram (create$))
 
-    (for ?char ?sliced
-        (bind ?histogram (insert$ ))
+    (for (bind ?i 1) (< ?i 27) (++ ?i) 
+        (bind ?histogram (insert$ ?histogram ?i 0))
     )
+
+    (foreach ?char ?sliced
+        (bind ?insertionIndex (+ (- (asc ?char) (asc "a")) 1))
+        (bind ?currentVal (nth$ ?insertionIndex ?histogram))
+
+        (bind ?histogram (replace$ ?histogram ?insertionIndex ?insertionIndex (++ ?currentVal)))
+    )
+
+    (foreach ?val ?histogram (printline ?val))
 )
 
 /*
@@ -26,12 +35,10 @@
     (bind ?returnVal (create$))
 
     (for (bind ?i 1) (<= ?i (str-length ?str)) (++ ?i)
-        (printline (sub-string ?i ?i ?str))
         (bind ?returnVal (insert$ ?returnVal (+ (length$ ?returnVal) 1) (sub-string ?i ?i ?str)))
     )
 
     (return ?returnVal)
 )
 
-(printline (slice$ "testing"))
-(printline (asc (ask "Enter a letter for ASCII")))
+(alphaHistogram "bcdefghijklmnopqrstuvwxy")
