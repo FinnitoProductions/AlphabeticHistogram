@@ -9,27 +9,28 @@
 (batch util/utilities.clp)
 (batch util/asciiToChar.clp)
 
-(bind ?STRING_TO_PROCESS (join$ (asciiList$)))
-
 (bind ?TOTAL_ASCII_CHARACTERS 256)
 (bind ?INITIAL_LIST_VALUE 0)
 
+(bind ?STRING_TO_PROCESS "ABCDEFGHIJKLMNOP abcdefghijklmnop")
+
 /*
 * Determines and prints how many of each letter appears in a given string ?n - not case-sensitive.
+* Will ignore all non-ASCII characters.
 */
 (deffunction alphaHistogram (?n)
-   (bind ?sliced (slice$ (lowcase ?n)))
+   (bind ?sliced (slice$ ?n))
    (bind ?histogram (create$))
 
    (for (bind ?i 1) (<= ?i ?TOTAL_ASCII_CHARACTERS) (++ ?i)
-      (bind ?histogram (insert$ ?histogram ?i ?INITIAL_LIST_VALUE))
+      (bind ?histogram (insert$ ?histogram ?i ?INITIAL_LIST_VALUE)) ; prepopulate list to store 256 elements starting at 0
    )
 
    (foreach ?char ?sliced
       (bind ?insertionIndex (getListIndex ?char))
 
-      (if (> ?insertionIndex (- ?TOTAL_ASCII_CHARACTERS 1)) then
-         (printline (str-cat ?char " is not a valid ASCII character. Will be ignored."))
+      (if (or (> ?insertionIndex (- ?TOTAL_ASCII_CHARACTERS 1)) (< ?insertionIndex 0)) then
+         (printline (str-cat ?char " is not a valid ASCII character . Will be ignored."))
        else 
          (bind ?currentVal (nth$ ?insertionIndex ?histogram))
          (bind ?histogram (replace$ ?histogram ?insertionIndex ?insertionIndex (++ ?currentVal)))
@@ -37,8 +38,11 @@
    ) ; foreach ?char ?sliced
 
    (for (bind ?i (getListIndex "a")) (<= ?i (getListIndex "z")) (++ ?i)
-      (printline (str-cat (getAsciiCharacter ?i) ": " (nth$ ?i ?histogram)))
-   ) 
+      (bind ?lowercaseCount (nth$ ?i ?histogram))
+      (bind ?uppercaseCount (nth$ (+ ?i (- (asc "A") (asc "a"))) ?histogram))
+
+      (printline (str-cat (getAsciiCharacter ?i) ": " (+ ?lowercaseCount ?uppercaseCount)))
+   )
 
    (return)
 ) ; alphaHistogram (?n)
@@ -57,20 +61,6 @@
 
    (return ?list)
 ) ; slice$ (?str)
-
-/*
-* Returns the representation of a given list of characters as a string by concatenating each character.
-* Input must be a list of strings for a logical output.
-*/
-(deffunction join$ (?list)
-   (bind ?returnStr "")
-
-   (foreach ?str ?list
-      (bind ?returnStr (str-cat ?returnStr ?str))
-   )
-
-   (return ?returnStr)
-) ; join$ (?list)
 
 /*
 * Breaks a given non-whitespace value into its constitutent characters, ordered in a list.
