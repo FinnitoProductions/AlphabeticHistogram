@@ -12,7 +12,7 @@
 (bind ?TOTAL_ASCII_CHARACTERS 256)
 (bind ?INITIAL_LIST_VALUE 0)
 
-(bind ?STRING_TO_PROCESS "ABCDEFGHIJKLMNOP abcdefghijklmnop")
+(bind ?STRING_TO_PROCESS "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ")
 
 /*
 * Determines and prints how many of each letter appears in a given string ?n - not case-sensitive.
@@ -29,8 +29,8 @@
    (foreach ?char ?sliced
       (bind ?insertionIndex (getListIndex ?char))
 
-      (if (or (> ?insertionIndex (- ?TOTAL_ASCII_CHARACTERS 1)) (< ?insertionIndex 0)) then
-         (printline (str-cat ?char " is not a valid ASCII character . Will be ignored."))
+      (if (or (> ?insertionIndex ?TOTAL_ASCII_CHARACTERS) (< ?insertionIndex 0)) then
+         (printline (str-cat ?char " (value " (asc ?char) ") is not a valid ASCII character. Will be ignored."))
        else 
          (bind ?currentVal (nth$ ?insertionIndex ?histogram))
          (bind ?histogram (replace$ ?histogram ?insertionIndex ?insertionIndex (++ ?currentVal)))
@@ -39,7 +39,8 @@
 
    (for (bind ?i (getListIndex "a")) (<= ?i (getListIndex "z")) (++ ?i)
       (bind ?lowercaseCount (nth$ ?i ?histogram))
-      (bind ?uppercaseCount (nth$ (+ ?i (- (asc "A") (asc "a"))) ?histogram))
+      (bind ?uppercaseLowercaseDifference (- (asc "A") (asc "a")))
+      (bind ?uppercaseCount (nth$ (+ ?i ?uppercaseLowercaseDifference) ?histogram))
 
       (printline (str-cat (getAsciiCharacter ?i) ": " (+ ?lowercaseCount ?uppercaseCount)))
    )
