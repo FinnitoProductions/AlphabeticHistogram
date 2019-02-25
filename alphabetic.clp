@@ -56,7 +56,7 @@
 ) ; alphaHistogram (?n)
 
 /*
-* Returns the representation of a given string as a list of characters, in the same order as provided
+* Returns the representation of a given string as a list of characters, in the same order as provided,
 * by first exploding the string into its various words and then iterating over each character in every word.
 * Removes all whitespace. Input must be a string for a logical output.
 */
